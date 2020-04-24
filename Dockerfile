@@ -5,7 +5,7 @@
 # SOURCE: https://github.com/puckel/docker-airflow
 
 FROM python:3.7-slim-buster
-LABEL maintainer="Puckel_"
+LABEL maintainer="Adventum"
 
 # Never prompt the user for choices on installation/configuration of packages
 ENV DEBIAN_FRONTEND noninteractive
@@ -17,6 +17,17 @@ ARG AIRFLOW_USER_HOME=/usr/local/airflow
 ARG AIRFLOW_DEPS=""
 ARG PYTHON_DEPS=""
 ENV AIRFLOW_HOME=${AIRFLOW_USER_HOME}
+
+ENV AIRFLOW__SCHEDULER__JOB_HEARTBEAT_SEC=1
+ENV AIRFLOW__SCHEDULER__SCHEDULER_HEARTBEAT_SEC=1
+ENV AIRFLOW__SCHEDULER__PROCESSOR_POLL_INTERVAL=10
+ENV AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL=5
+ENV AIRFLOW__SCHEDULER__MAX_THREADS=4
+ENV AIRFLOW__CORE__EXECUTOR=LocalExecutor
+ENV AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT=600
+ENV AIRFLOW__CORE__DAG_FILE_PROCESSOR_TIMEOUT=600
+ENV AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
+ENV AIRFLOW__WEBSERVER__WEB_SERVER_WORKER_TIMEOUT=300
 
 # Define en_US.
 ENV LANGUAGE en_US.UTF-8
@@ -59,6 +70,7 @@ RUN set -ex \
     && pip install pyOpenSSL \
     && pip install ndg-httpsclient \
     && pip install pyasn1 \
+    && pip install 'SQLAlchemy==1.3.15' \
     && pip install apache-airflow[crypto,celery,postgres,hive,jdbc,mysql,ssh${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}]==${AIRFLOW_VERSION} \
     && pip install 'redis==3.2' \
     && if [ -n "${PYTHON_DEPS}" ]; then pip install ${PYTHON_DEPS}; fi \
